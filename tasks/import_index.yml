@@ -1,0 +1,74 @@
+---
+
+- name: Set variables
+  set_fact:      
+    elex_target: "{{ elex_target|default(elex_index) }}"
+  tags:
+  - always
+    
+- name: "Check datadir: {{ elex_datadir }}"
+  stat: path="{{ elex_datadir }}"
+  register: stat
+  failed_when: not stat.stat.isdir
+  tags:
+  - always
+
+- name: "Get file list for {{ elex_index }}"
+  find:
+    path: "{{ elex_datadir }}"
+    patterns: "?{{ elex_index }}?_docs0*"
+  register: file_list
+  failed_when: file_list.matched<1
+  tags:
+  - always
+
+- name: "Read meta info for {{ elex_index }}"
+  set_fact:
+    index_meta_info: 
+      aliases: "{{ elex_restore_aliases|bool|ternary(raw_info.aliases, dict()) }}"
+      mappings: "{{ raw_info.mappings }}"
+      settings: "{{ raw_info.settings }}"
+  vars:
+    raw_info: "{{ lookup('pipe', 'gunzip -c '~elex_datadir~'/['~elex_index~']_metainfo.json.gz')|from_json }}"
+  failed_when: index_meta_info.settings.index is not defined
+  tags:
+  - import
+  - restore
+  - meta
+  
+- name: "Restore index meta info to {{ elex_target }}"
+  uri:
+    url: "{{ elex_elasticsearch_url }}/{{ elex_target }}"
+    method: PUT
+    body_format: json
+    body: "{{ index_meta_info }}"
+    headers:
+      Accept: "application/json"
+    url_username: "{{ elex_login[0] }}"
+    url_password: "{{ elex_login[1] }}"
+    force_basic_auth: true
+    timeout: 300
+    return_content: false #Take python/ansible too long to process...
+  register: result
+  tags:
+  - import
+  - restore
+  - meta
+
+- name: Debug uri results
+  debug: var=result verbosity=1
+  tags:
+  - import
+  - restore
+  - meta
+  
+- name: "Restore documents to {{ elex_target }}"
+  include_tasks: do_import_index.yml
+  loop: "{{ file_list.files|sort(attribute='path') }}"
+  loop_control:
+    label: "{{ item.path|basename }} -> {{ elex_target }}"
+  tags:
+  - import
+  - restore
+  - docs
+

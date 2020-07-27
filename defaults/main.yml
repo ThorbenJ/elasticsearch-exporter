@@ -1,2 +1,34 @@
 ---
+# Copyright (C) 2020 Thorben Jändling
+# This program is free software: you can redistribute it and/or modify it under the terms
+# of the GNU Affero General Public License as published by the Free Software Foundation,
+# version 3.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License along with this
+# program. If not, see <https://www.gnu.org/licenses/>
+
 # defaults file for elasticsearch-exporter
+
+# Root of all exports
+elex_workdir: "{{ lookup('env', 'TMPDIR')|regex_replace('/+$','') }}/elasticsearch_exports"
+
+#elex_datadir: defaults-> workdir~'/['~elex_index~']/'~ansible_date_time.date
+
+# Use with import, if importing an export from another date
+elex_export_date: "{{ ansible_date_time.date }}"
+
+elex_page_size: 10000
+
+# Usually only make sense to restore aliases if restoring to same index name
+elex_restore_aliases: "{{ elex_target is not defined }}"
+
+# IF true, cannot be restored to other index names (el_target)
+_elex_include_index_name: false
+
+# These settings should not be imported, so we filter them out.
+# This is to keep the goal of making the exports easy to use with other tools like curl.
+_elex_filter_settings_keys: ['creation_date','provided_name','uuid','version']

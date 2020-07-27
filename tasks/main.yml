@@ -1,2 +1,38 @@
 ---
+# Copyright (C) 2020 Thorben Jändling
+# This program is free software: you can redistribute it and/or modify it under the terms
+# of the GNU Affero General Public License as published by the Free Software Foundation,
+# version 3.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License along with this
+# program. If not, see <https://www.gnu.org/licenses/>
+
 # tasks file for elasticsearch-exporter
+    
+- name: Param check
+  fail: msg="Require var '{{ item }}' is missing."
+  when: lookup('vars', item) is not defined
+  loop:
+  - elex_cloud_id
+  - elex_cloud_auth
+  - elex_index
+
+- name: Set variables
+  set_fact:
+    elex_elasticsearch_url: "{{ elex_elasticsearch_url |default('https://'~elex_cloud_info[1]~'.'~elex_cloud_info[0]) }}"
+    #elex_kibana_url: "https://{{ elex_cloud_info[2] }}.{{ elex_cloud_info[0] }}"
+    elex_login: "{{ elex_login |default(elex_cloud_auth.split(':')|list) }}"
+    elex_datadir: "{{ elex_datadir |default(elex_workdir~'/['~elex_index~']/'~elex_export_date) }}"
+  vars:
+    elex_cloud_info: "{{ (elex_cloud_id|regex_replace('^[^:]*:','')|b64decode).split('$')|list }}"
+  failed_when: elex_cloud_info|length<2 or elex_login|length!=2
+  tags:
+  - always
+  
+- name: Call import/export
+  import_tasks: "{{ elex_task }}_index.yml"
+  failed_when: elex_task not in ['import', 'export']

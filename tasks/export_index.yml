@@ -1,0 +1,73 @@
+---
+
+- name: "Check datadir: {{ elex_datadir }}"
+  file: path="{{ elex_datadir }}" state=directory mode=0755
+  tags:
+  - always
+
+- name: "Get meta info for {{ elex_index }}"
+  uri:
+    url: "{{ elex_elasticsearch_url }}/{{ elex_index }}/"
+    method: GET
+    headers:
+      Accept: "application/json"
+    url_username: "{{ elex_login[0] }}"
+    url_password: "{{ elex_login[1] }}"
+    force_basic_auth: true
+    timeout: 60
+    return_content: false #Take python/ansible too long to process...
+  register: result
+  tags:
+  - always
+      
+- name: "Save meta info for {{ elex_index }}"
+  copy:
+    dest: "{{ elex_datadir }}/[{{ elex_index }}]_metainfo.json"
+    content: "{{ meta_data |to_nice_json }}"
+  vars:
+    meta_data:
+      aliases: "{{ result.json[result.json|first].aliases }}"
+      mappings: "{{ result.json[result.json|first].mappings }}"
+#any other settings than index?
+      settings:
+        index: "{{ result.json[result.json|first].settings.index|dict2items|rejectattr('key', 'in', _elex_filter_settings_keys)|list|items2dict }}"
+  tags:
+  - export
+  - metainfo
+
+- name: "Compress saved meta data"
+  archive: path="{{ elex_datadir }}/[{{ elex_index }}]_metainfo.json" remove=yes
+  tags:
+  - compress
+  - metainfo
+
+- name: "Get document count for {{ elex_index }}"
+  uri:
+    url: "{{ elex_elasticsearch_url }}/{{ elex_index }}/_count"
+    method: GET
+    headers:
+      Accept: "application/json"
+    url_username: "{{ elex_login[0] }}"
+    url_password: "{{ elex_login[1] }}"
+    force_basic_auth: true
+    timeout: 300
+    return_content: false #Take python/ansible too long to process...
+  register: result
+  tags:
+  - always
+    
+- name: "Note document and page count for {{ elex_index }}" 
+  set_fact:
+    elex_doc_count: "{{ result.json.count }}"
+    elex_page_count: "{{ (result.json.count/elex_page_size)|round(0, 'ceil')|int }}"
+  tags:
+  - always
+
+- name: "Export documents from {{ elex_index }}"
+  include_tasks: do_export_index.yml
+  loop: "{{ range(1, elex_page_count|int +1)|list }}"
+  loop_control:
+    loop_var: elex_page_num
+  tags:
+  - export
+  - docs

@@ -1,7 +1,19 @@
+# Copyright (C) 2020 Thorben Jändling
+# This program is free software: you can redistribute it and/or modify it under the terms
+# of the GNU Affero General Public License as published by the Free Software Foundation,
+# version 3.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License along with this
+# program. If not, see <https://www.gnu.org/licenses/>
+
 galaxy_info:
-  author: your name
-  description: your role description
-  company: your company (optional)
+  author: Thorben Jändling
+  description: Export/Import indices from/to an Elasticsearch cluster
+#  company: your company (optional)
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value
@@ -14,7 +26,7 @@ galaxy_info:
   # - GPL-3.0-only
   # - Apache-2.0
   # - CC-BY-4.0
-  license: license (GPL-2.0-or-later, MIT, etc)
+  license: AGPL-3.0-only
 
   min_ansible_version: 2.9
 
@@ -39,7 +51,10 @@ galaxy_info:
   #   - 7
   #   - 99.99
 
-  galaxy_tags: []
+  galaxy_tags:
+  - elasticsearch
+  - import
+  - export
     # List tags for your role here, one per line. A tag is a keyword that describes
     # and categorizes the role. Users find roles by searching for tags. Be sure to
     # remove the '[]' above, if you add tags to this list.

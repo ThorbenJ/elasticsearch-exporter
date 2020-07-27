@@ -1,0 +1,20 @@
+---
+
+- name: "Restore {{ item.path|basename }} to {{ elex_target }}"
+  uri:
+    url: "{{ elex_elasticsearch_url }}/{{ elex_target }}/_bulk"
+    method: POST
+    body: "{{ lookup('pipe', 'gunzip -c '~item.path ) }}\n"
+    remote_src: true
+    headers:
+      Content-Type: "application/x-ndjson"
+      Accept: "application/json"
+    url_username: "{{ elex_login[0] }}"
+    url_password: "{{ elex_login[1] }}"
+    force_basic_auth: true
+    timeout: 300
+    return_content: false #Take python/ansible too long to process...
+  tags:
+  - import
+  - restore
+  - docs

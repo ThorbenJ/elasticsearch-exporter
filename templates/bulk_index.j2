@@ -1,0 +1,4 @@
+{% for hit in hits %}
+{ "index": { {%- if _elex_include_index_name -%} "_index": "{{ hit._index }}",{%- endif %} "_id": "{{ hit._id }}" } }
+{{ hit._source|to_json }}
+{% endfor %}

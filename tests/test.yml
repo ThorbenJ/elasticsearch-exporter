@@ -1,5 +1,21 @@
 ---
 - hosts: localhost
-  remote_user: root
+  vars:
+    ansible_connection: local
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    elex_cloud_id: "{{ lookup('env', 'ELEX_CLOUD_ID') }}"
+    elex_cloud_auth: "{{ lookup('env', 'ELEX_CLOUD_AUTH') }}"
+    elex_index: "{{ lookup('env', 'ELEX_INDEX') }}"
   roles:
-    - elasticsearch-exporter
+    - role: elasticsearch-exporter
+      vars:
+        elex_task: export
+      tags:
+      - export
+    - role: elasticsearch-exporter
+      vars:
+        elex_task: import
+        elex_target: "{{ elex_index|regex_replace('\\.', '') }}-reimported"
+        elex_export_date: "{{ ansible_date_time.date }}"
+      tags:
+      - import
