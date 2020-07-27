@@ -8,6 +8,9 @@ Requirements
 
 Just ansible.
 
+The exported files could be imported with other tools, such as curl; as they are in the
+ndjson format used by the _bulk API.
+
 Role Variables
 --------------
 
@@ -42,7 +45,7 @@ Role Variables
 - `elex_restore_aliases`: Restore index aliases when importing
   - *Default*: elex_index == elex_target (i.e. False when importing to a different name)
 
-The following variables are derived fromt he ones above, but maybe overridden:
+The following variables are derived from the ones above, but maybe overridden:
 
 - `elex_elasticsearch_url`: (string) `"https://es.example.com"`
 - `elex_login`: (array of two strings) `["username", "password"]`
@@ -56,7 +59,7 @@ No other roles
 Example Playbook
 ----------------
 
-See the [test/test.yml] playbook
+See the [tests/test.yml] playbook
 
 License
 -------
