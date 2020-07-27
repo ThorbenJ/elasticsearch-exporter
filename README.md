@@ -12,28 +12,35 @@ Role Variables
 --------------
 
 - `elex_task`: Set to 'import' or 'export'
- - **Required** always
+  - **Required** always
 
+&nbsp;
 - `elex_cloud_id`: The Cloud ID to access (EC, ECE, ECK)
- - **Required** always
- 
+  - **Required** always
+
+&nbsp;
 - `elex_cloud_auth`: The Cloud authentication credentials ("username:password")
- - **Required** always
- 
+  - **Required** always
+
+&nbsp;
 - `elex_index`: The name of the index to be exported (or was exported, when importing)
- - **Required** always
+  - **Required** always
 
+&nbsp;
 - `elex_workdir`: The base directory to store all exports under
- - *Default*: $TMPDIR/elasticsearch_exports
+  - *Default*: $TMPDIR/elasticsearch_exports
 
+&nbsp;
 - `elex_export_date`: Use when importing an 'export' from a past date
- - *Defaults*: Today
- 
-- `elex_target`: The index name to restore an import to
- - *Default*: Same as `elex_index`
+  - *Defaults*: Today
 
+&nbsp;
+- `elex_target`: The index name to restore an import to
+  - *Default*: Same as `elex_index`
+
+&nbsp;
 - `elex_restore_aliases`: Restore index aliases when importing
- - *Default*: elex_index == elex_target (i.e. False when importing to a different name)
+  - *Default*: elex_index == elex_target (i.e. False when importing to a different name)
 
 The following variables are derived fromt he ones above, but maybe overridden:
 
