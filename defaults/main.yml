@@ -14,7 +14,7 @@
 # defaults file for elasticsearch-exporter
 
 # Root of all exports
-elex_workdir: "{{ lookup('env', 'TMPDIR')|regex_replace('/+$','') }}/elasticsearch_exports"
+elex_workdir: "{{ lookup('env', 'TMPDIR')|default('/var/tmp')|regex_replace('/+$','') }}/elasticsearch_exports"
 
 #elex_datadir: defaults-> workdir~'/['~elex_index~']/'~ansible_date_time.date
 
