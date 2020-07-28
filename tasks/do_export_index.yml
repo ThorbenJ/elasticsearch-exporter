@@ -21,7 +21,7 @@
   tags:
   - export
   - docs
-  
+
 - name: Get scroll ID
   set_fact:
     elex_scroll_id: "{{ first_result.json._scroll_id }}"
@@ -29,7 +29,7 @@
   tags:
   - export
   - docs
-  
+
 - name: "Get next page ({{ elex_page_num }}/{{ elex_page_count }})"
   uri:
     url: "{{ elex_elasticsearch_url }}/_search/scroll"
@@ -50,7 +50,7 @@
   tags:
   - export
   - docs
-  
+
 - name: "Save page ({{ elex_page_num }}/{{ elex_page_count }})"
   template:
     dest: "{{ elex_datadir }}/[{{ elex_index }}]_docs{{ '%06x'|format(elex_page_num) }}.ndjson"
@@ -63,7 +63,7 @@
 
 - name: "Compress page ({{ elex_page_num }}/{{ elex_page_count }})"
   archive:
-    path: "{{ elex_datadir }}/[{{ elex_index }}]_docs{{ '%06x'|format(elex_page_num) }}.ndjson" 
+    path: "{{ elex_datadir }}/[{{ elex_index }}]_docs{{ '%06x'|format(elex_page_num) }}.ndjson"
     remove: yes
   tags:
   - compress

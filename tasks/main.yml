@@ -12,7 +12,7 @@
 # program. If not, see <https://www.gnu.org/licenses/>
 
 # tasks file for elasticsearch-exporter
-    
+
 - name: Param check
   fail: msg="Require var '{{ item }}' is missing."
   when: lookup('vars', item) is not defined
@@ -20,6 +20,7 @@
   - elex_cloud_id
   - elex_cloud_auth
   - elex_index
+  - elex_task
 
 - name: Set variables
   set_fact:
@@ -32,7 +33,7 @@
   failed_when: elex_cloud_info|length<2 or elex_login|length!=2
   tags:
   - always
-  
+
 - name: Call import/export
   import_tasks: "{{ elex_task }}_index.yml"
   failed_when: elex_task not in ['import', 'export']

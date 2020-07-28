@@ -19,7 +19,7 @@
   register: result
   tags:
   - always
-      
+
 - name: "Save meta info for {{ elex_index }}"
   copy:
     dest: "{{ elex_datadir }}/[{{ elex_index }}]_metainfo.json"
@@ -55,8 +55,8 @@
   register: result
   tags:
   - always
-    
-- name: "Note document and page count for {{ elex_index }}" 
+
+- name: "Note document and page count for {{ elex_index }}"
   set_fact:
     elex_doc_count: "{{ result.json.count }}"
     elex_page_count: "{{ (result.json.count/elex_page_size)|round(0, 'ceil')|int }}"

@@ -45,6 +45,7 @@ Role Variables
 - `elex_restore_aliases`: Restore index aliases when importing
   - *Default*: elex_index == elex_target (i.e. False when importing to a different name)
 
+&nbsp;
 The following variables are derived from the ones above, but maybe overridden:
 
 - `elex_elasticsearch_url`: (string) `"https://es.example.com"`

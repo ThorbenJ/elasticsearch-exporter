@@ -31,4 +31,4 @@ _elex_include_index_name: false
 
 # These settings should not be imported, so we filter them out.
 # This is to keep the goal of making the exports easy to use with other tools like curl.
-_elex_filter_settings_keys: ['creation_date','provided_name','uuid','version']
+_elex_filter_settings_keys: ['creation_date', 'provided_name', 'uuid', 'version']

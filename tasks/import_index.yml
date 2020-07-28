@@ -1,11 +1,11 @@
 ---
 
 - name: Set variables
-  set_fact:      
+  set_fact:
     elex_target: "{{ elex_target|default(elex_index) }}"
   tags:
   - always
-    
+
 - name: "Check datadir: {{ elex_datadir }}"
   stat: path="{{ elex_datadir }}"
   register: stat
@@ -24,7 +24,7 @@
 
 - name: "Read meta info for {{ elex_index }}"
   set_fact:
-    index_meta_info: 
+    index_meta_info:
       aliases: "{{ elex_restore_aliases|bool|ternary(raw_info.aliases, dict()) }}"
       mappings: "{{ raw_info.mappings }}"
       settings: "{{ raw_info.settings }}"
@@ -35,7 +35,7 @@
   - import
   - restore
   - meta
-  
+
 - name: "Restore index meta info to {{ elex_target }}"
   uri:
     url: "{{ elex_elasticsearch_url }}/{{ elex_target }}"
@@ -61,7 +61,7 @@
   - import
   - restore
   - meta
-  
+
 - name: "Restore documents to {{ elex_target }}"
   include_tasks: do_import_index.yml
   loop: "{{ file_list.files|sort(attribute='path') }}"
@@ -71,4 +71,3 @@
   - import
   - restore
   - docs
-
