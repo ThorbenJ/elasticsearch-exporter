@@ -59,7 +59,7 @@
   - import
   - restore
   - meta
-  
+
 - name: "Create and restore index meta info to {{ elex_target }}"
   uri:
     url: "{{ elex_elasticsearch_url }}/{{ elex_target }}"

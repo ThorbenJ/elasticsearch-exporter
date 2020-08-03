@@ -30,7 +30,7 @@
   file: path="{{ elex_datadir }}" state=absent mode=0755
   tags:
   - always
-  
+
 - name: "Create datadir: {{ elex_datadir }}"
   file: path="{{ elex_datadir }}" state=directory mode=0755
   tags:
