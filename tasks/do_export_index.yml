@@ -2,7 +2,7 @@
 
 - name: "Get first page (1/{{ elex_page_count }})"
   uri:
-    url: "{{ elex_elasticsearch_url }}/{{ elex_index }}/_search?scroll=2m"
+    url: "{{ elex_elasticsearch_url }}/{{ elex_index_real }}/_search?scroll=2m"
     method: POST
     body_format: json
     body:
@@ -15,7 +15,6 @@
     url_password: "{{ elex_login[1] }}"
     force_basic_auth: true
     timeout: 300
-    return_content: false #Take python/ansible too long to process...
   register: first_result
   when: elex_page_num==1
   tags:
@@ -44,7 +43,6 @@
     url_password: "{{ elex_login[1] }}"
     force_basic_auth: true
     timeout: 300
-    return_content: false #Take python/ansible too long to process...
   register: next_result
   when: elex_page_num>1
   tags:
@@ -53,7 +51,7 @@
 
 - name: "Save page ({{ elex_page_num }}/{{ elex_page_count }})"
   template:
-    dest: "{{ elex_datadir }}/[{{ elex_index }}]_docs{{ '%06x'|format(elex_page_num) }}.ndjson"
+    dest: "{{ elex_datadir }}/[{{ elex_index_real }}]_docs{{ '%06x'|format(elex_page_num) }}.ndjson"
     src: "bulk_index.j2"
   vars:
     hits: "{{ ((elex_page_num==1)|ternary(first_result, next_result)).json.hits.hits|list }}"
@@ -63,7 +61,7 @@
 
 - name: "Compress page ({{ elex_page_num }}/{{ elex_page_count }})"
   archive:
-    path: "{{ elex_datadir }}/[{{ elex_index }}]_docs{{ '%06x'|format(elex_page_num) }}.ndjson"
+    path: "{{ elex_datadir }}/[{{ elex_index_real }}]_docs{{ '%06x'|format(elex_page_num) }}.ndjson"
     remove: yes
   tags:
   - compress

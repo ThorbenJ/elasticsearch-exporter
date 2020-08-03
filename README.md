@@ -50,7 +50,6 @@ The following variables are derived from the ones above, but maybe overridden:
 
 - `elex_elasticsearch_url`: (string) `"https://es.example.com"`
 - `elex_login`: (array of two strings) `["username", "password"]`
-- `elex_datadir`: (string) `workdir/elex_index/elex_export_date`
 
 Dependencies
 ------------

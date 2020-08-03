@@ -24,7 +24,7 @@ elex_export_date: "{{ ansible_date_time.date }}"
 elex_page_size: 10000
 
 # Usually only make sense to restore aliases if restoring to same index name
-elex_restore_aliases: "{{ elex_target is not defined }}"
+elex_restore_aliases: "{{ elex_target == elex_index }}"
 
 # IF true, cannot be restored to other index names (el_target)
 _elex_include_index_name: false

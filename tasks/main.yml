@@ -15,19 +15,21 @@
 
 - name: Param check
   fail: msg="Require var '{{ item }}' is missing."
-  when: lookup('vars', item) is not defined
+  when: item not in vars or lookup('vars', item) is not defined
   loop:
   - elex_cloud_id
   - elex_cloud_auth
   - elex_index
   - elex_task
+  tags:
+  - always
 
 - name: Set variables
   set_fact:
     elex_elasticsearch_url: "{{ elex_elasticsearch_url |default('https://'~elex_cloud_info[1]~'.'~elex_cloud_info[0]) }}"
     #elex_kibana_url: "https://{{ elex_cloud_info[2] }}.{{ elex_cloud_info[0] }}"
     elex_login: "{{ elex_login |default(elex_cloud_auth.split(':')|list) }}"
-    elex_datadir: "{{ elex_datadir |default(elex_workdir~'/['~elex_index~']/'~elex_export_date) }}"
+    elex_datadir: "{{ elex_workdir~'/['~elex_index~']/'~elex_export_date }}"
   vars:
     elex_cloud_info: "{{ (elex_cloud_id|regex_replace('^[^:]*:','')|b64decode).split('$')|list }}"
   failed_when: elex_cloud_info|length<2 or elex_login|length!=2
@@ -37,3 +39,6 @@
 - name: Call import/export
   import_tasks: "{{ elex_task }}_index.yml"
   failed_when: elex_task not in ['import', 'export']
+  tags:
+  - import
+  - export

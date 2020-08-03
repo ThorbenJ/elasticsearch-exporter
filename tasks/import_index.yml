@@ -36,7 +36,31 @@
   - restore
   - meta
 
-- name: "Restore index meta info to {{ elex_target }}"
+- name: "Delete exiting index: {{ elex_target }}"
+  uri:
+    url: "{{ elex_elasticsearch_url }}/{{ elex_target }}"
+    method: DELETE
+    headers:
+      Accept: "application/json"
+    url_username: "{{ elex_login[0] }}"
+    url_password: "{{ elex_login[1] }}"
+    force_basic_auth: true
+    timeout: 300
+    status_code: [200, 404]
+  register: result
+  tags:
+  - import
+  - restore
+  - meta
+
+- name: Debug uri results
+  debug: var=result verbosity=1
+  tags:
+  - import
+  - restore
+  - meta
+  
+- name: "Create and restore index meta info to {{ elex_target }}"
   uri:
     url: "{{ elex_elasticsearch_url }}/{{ elex_target }}"
     method: PUT
@@ -48,7 +72,6 @@
     url_password: "{{ elex_login[1] }}"
     force_basic_auth: true
     timeout: 300
-    return_content: false #Take python/ansible too long to process...
   register: result
   tags:
   - import
