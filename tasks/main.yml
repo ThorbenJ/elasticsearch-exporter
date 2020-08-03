@@ -14,13 +14,15 @@
 # tasks file for elasticsearch-exporter
 
 - name: Param check
-  fail: msg="Require var '{{ item }}' is missing."
-  when: item not in vars or lookup('vars', item) is not defined
+  fail: msg="Require var '{{ elex_item }}' is missing."
+  when: elex_item not in vars or lookup('vars', elex_item) is not defined
   loop:
   - elex_cloud_id
   - elex_cloud_auth
   - elex_index
   - elex_task
+  loop_control:
+    loop_var: elex_item
   tags:
   - always
 

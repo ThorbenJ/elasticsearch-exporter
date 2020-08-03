@@ -1,10 +1,10 @@
 ---
 
-- name: "Restore {{ item.path|basename }} to {{ elex_target }}"
+- name: "Restore {{ elex_file.path|basename }} to {{ elex_target }}"
   uri:
     url: "{{ elex_elasticsearch_url }}/{{ elex_target }}/_bulk"
     method: POST
-    body: "{{ lookup('pipe', 'gunzip -c '~item.path ) }}\n"
+    body: "{{ lookup('pipe', 'gunzip -c '~elex_file.path ) }}\n"
     remote_src: true
     headers:
       Content-Type: "application/x-ndjson"

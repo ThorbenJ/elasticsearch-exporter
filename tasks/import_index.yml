@@ -89,7 +89,8 @@
   include_tasks: do_import_index.yml
   loop: "{{ file_list.files|sort(attribute='path') }}"
   loop_control:
-    label: "{{ item.path|basename }} -> {{ elex_target }}"
+    label: "{{ elex_file.path|basename }} -> {{ elex_target }}"
+    loop_var: elex_file
   tags:
   - import
   - restore
