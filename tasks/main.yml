@@ -26,7 +26,7 @@
 
 - name: Check Cloud Auth
   set_fact:
-    elex_login: "{{ elex_login |default(elex_cloud_auth.split(':')|list) }}"
+    elex_login: "{{ elex_cloud_auth.split(':')|list }}"
   failed_when: elex_login|length!=2
   when: elex_cloud_auth is defined
   tags:
