@@ -13,28 +13,35 @@
 
 # tasks file for elasticsearch-exporter
 
+- name: Check Cloud ID
+  set_fact:
+    elex_elasticsearch_url: "https://{{ elex_cloud_info[1] }}.{{ elex_cloud_info[0] }}"
+    #elex_kibana_url: "https://{{ elex_cloud_info[2] }}.{{ elex_cloud_info[0] }}"
+  vars:
+    elex_cloud_info: "{{ (elex_cloud_id|regex_replace('^[^:]*:','')|b64decode).split('$')|list }}"
+  failed_when: elex_cloud_info|length<2
+  when: elex_cloud_id is defined
+  tags:
+  - always
+
+- name: Check Cloud Auth
+  set_fact:
+    elex_login: "{{ elex_login |default(elex_cloud_auth.split(':')|list) }}"
+  failed_when: elex_login|length!=2
+  when: elex_cloud_auth is defined
+  tags:
+  - always
+
 - name: Param check
   fail: msg="Require var '{{ elex_item }}' is missing."
   when: elex_item not in vars or lookup('vars', elex_item) is not defined
   loop:
-  - elex_cloud_id
-  - elex_cloud_auth
+  - elex_elasticsearch_url
+  - elex_login
   - elex_index
   - elex_task
   loop_control:
     loop_var: elex_item
-  tags:
-  - always
-
-- name: Set variables
-  set_fact:
-    elex_elasticsearch_url: "{{ elex_elasticsearch_url |default('https://'~elex_cloud_info[1]~'.'~elex_cloud_info[0]) }}"
-    #elex_kibana_url: "https://{{ elex_cloud_info[2] }}.{{ elex_cloud_info[0] }}"
-    elex_login: "{{ elex_login |default(elex_cloud_auth.split(':')|list) }}"
-    elex_datadir: "{{ elex_workdir~'/['~elex_index~']/'~elex_export_date }}"
-  vars:
-    elex_cloud_info: "{{ (elex_cloud_id|regex_replace('^[^:]*:','')|b64decode).split('$')|list }}"
-  failed_when: elex_cloud_info|length<2 or elex_login|length!=2
   tags:
   - always
 
