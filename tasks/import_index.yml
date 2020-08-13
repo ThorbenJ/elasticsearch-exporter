@@ -8,6 +8,7 @@
     file_type: directory
     use_regex: false
   register: result
+  no_log: "{{ _elex_supress_data_leak }}"
 
 - name: "[Import] Note index list"
   set_fact:

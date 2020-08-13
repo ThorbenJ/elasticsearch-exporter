@@ -40,10 +40,16 @@
   - elex_login
   - elex_index
   - elex_task
+  - elex_workdir
   loop_control:
     loop_var: elex_item
   tags:
   - always
+
+# This is here to simplify using this role as an ansible one-shot command (outside a playbook)  
+- name: Gather facts
+  setup:
+  when: ansible_date_time is not defined
 
 - name: Call import/export
   import_tasks: "{{ elex_task }}_index.yml"

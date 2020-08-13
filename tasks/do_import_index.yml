@@ -15,12 +15,6 @@
   when: elex_rename is defined and elex_rename is string
   failed_when: re_op|length!=4
 
-- debug:
-    msg:
-    - "{{ elex_rename }}"
-    - "{{ elex_target }}"
-    - "{{ elex_index_real }}"
-
 - name: "[Import {{ elex_index_real }}] Check datadir"
   stat: path="{{ elex_datadir }}"
   register: stat
@@ -34,6 +28,7 @@
     patterns: "?{{ elex_index_real }}?_docs0*"
   register: file_list
   failed_when: file_list.matched<1
+  no_log: "{{ _elex_supress_data_leak }}"
   tags:
   - always
 
@@ -63,6 +58,7 @@
     timeout: 300
     status_code: [200, 404]
   register: result
+  no_log: "{{ _elex_supress_data_leak }}"
   tags:
   - import
   - restore
@@ -88,6 +84,7 @@
     force_basic_auth: true
     timeout: 300
   register: result
+  no_log: "{{ _elex_supress_data_leak }}"
   tags:
   - import
   - restore

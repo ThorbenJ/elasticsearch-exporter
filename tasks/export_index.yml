@@ -2,7 +2,7 @@
 
 - name: "[Export] Get meta info for index pattern: {{ elex_index }}"
   uri:
-    url: "{{ elex_elasticsearch_url }}/{{ elex_index }}/"
+    url: "{{ elex_elasticsearch_url }}/{{ elex_index|urlencode }}/"
     method: GET
     headers:
       Accept: "application/json"
@@ -11,6 +11,7 @@
     force_basic_auth: true
     timeout: 60
   register: meta_result
+  no_log: "{{ _elex_supress_data_leak }}"
   tags:
   - always
 

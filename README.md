@@ -19,11 +19,11 @@ Role Variables
 
 &nbsp;
 - `elex_cloud_id`: The Cloud ID to access (EC, ECE, ECK)
-  - **Required** always
+  - **Required** always (unless elex_elasticsearch_url is provided)
 
 &nbsp;
 - `elex_cloud_auth`: The Cloud authentication credentials ("username:password")
-  - **Required** always
+  - **Required** always (unless elex_login is provided)
 
 &nbsp;
 - `elex_index`: The index pattern of indices to be exported (or that was exported, when importing)
@@ -50,7 +50,7 @@ Role Variables
 &nbsp;
 The following variables are derived from the ones above, but maybe overridden:
 
-- `elex_elasticsearch_url`: (string) `"https://es.example.com"`
+- `elex_elasticsearch_url`: (string) `"https://es.example.com"` (no tailing /)
 - `elex_login`: (array of two strings) `["username", "password"]`
 
 Dependencies

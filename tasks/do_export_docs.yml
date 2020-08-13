@@ -16,6 +16,7 @@
     force_basic_auth: true
     timeout: 300
   register: first_result
+  no_log: "{{ _elex_supress_data_leak }}"
   when: elex_page_num==1
   tags:
   - export
@@ -44,6 +45,7 @@
     force_basic_auth: true
     timeout: 300
   register: next_result
+  no_log: "{{ _elex_supress_data_leak }}"
   when: elex_page_num>1
   tags:
   - export
@@ -55,6 +57,7 @@
     src: "bulk_index.j2"
   vars:
     hits: "{{ ((elex_page_num==1)|ternary(first_result, next_result)).json.hits.hits|list }}"
+  no_log: "{{ _elex_supress_data_leak }}"
   tags:
   - export
   - docs

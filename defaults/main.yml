@@ -21,12 +21,16 @@ elex_workdir: "{{ lookup('env', 'TMPDIR')|default('/var/tmp')|regex_replace('/+$
 # Use with import, if importing an export from another date
 elex_export_date: "{{ ansible_date_time.date }}"
 
+# This is the default max scroll window size
 elex_page_size: 10000
 
 elex_rename: ~
 
 # Usually only make sense to restore aliases if restoring to same index name
 elex_restore_aliases: "{{ (elex_rename is not defined)|bool }}"
+
+# Avoid outputting REST results, that can dump too much data or sensitive data
+_elex_supress_data_leak: true
 
 # IF true, cannot be restored to other index names (el_target)
 _elex_include_index_name: false
