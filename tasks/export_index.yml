@@ -1,0 +1,25 @@
+---
+
+- name: "[Export] Get meta info for index pattern: {{ elex_index }}"
+  uri:
+    url: "{{ elex_elasticsearch_url }}/{{ elex_index }}/"
+    method: GET
+    headers:
+      Accept: "application/json"
+    url_username: "{{ elex_login[0] }}"
+    url_password: "{{ elex_login[1] }}"
+    force_basic_auth: true
+    timeout: 60
+  register: meta_result
+  tags:
+  - always
+
+- name: "[Export] Get index list"
+  set_fact:
+    elex_index_list: "{{ meta_result.json.keys()|list }}"
+
+- name: "[Export] Interate over index list"
+  include_tasks: do_export_index.yml
+  loop: "{{ elex_index_list }}"
+  loop_control:
+    loop_var: "elex_index_real"

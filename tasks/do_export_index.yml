@@ -1,63 +1,41 @@
 ---
 
-- name: "Get meta info for {{ elex_index }}"
-  uri:
-    url: "{{ elex_elasticsearch_url }}/{{ elex_index }}/"
-    method: GET
-    headers:
-      Accept: "application/json"
-    url_username: "{{ elex_login[0] }}"
-    url_password: "{{ elex_login[1] }}"
-    force_basic_auth: true
-    timeout: 60
-  register: result
-  tags:
-  - always
-
-- name: Get index real name
+- name: "[Export {{ elex_index_real }}] Determine variables"
   set_fact:
-    elex_index_real: "{{ result.json|first }}"
-    elex_datadir: "{{ elex_workdir~'/['~(result.json|first)~']/'~elex_export_date }}"
+    elex_datadir: "{{ elex_workdir }}/[{{ elex_index_real }}]/{{ elex_export_date }}"
 
-- name:
-  debug:
-    msg:
-    - "WARNING {{ elex_index }} is an alias to {{ elex_index_real }}!"
-    - "Will export the real index: {{ elex_index_real }} (use this name for imports!)"
-  when: elex_index != elex_index_real
-
-- name: "Remove old datadir: {{ elex_datadir }}"
+- name: "[Export {{ elex_index_real }}] Remove old datadir: {{ elex_datadir }}"
   file: path="{{ elex_datadir }}" state=absent mode=0755
   tags:
   - always
 
-- name: "Create datadir: {{ elex_datadir }}"
+- name: "[Export {{ elex_index_real }}] Create datadir: {{ elex_datadir }}"
   file: path="{{ elex_datadir }}" state=directory mode=0755
   tags:
   - always
 
-- name: "Save meta info for {{ elex_index_real }}"
+- name: "[Export {{ elex_index_real }}] Save meta info"
   copy:
     dest: "{{ elex_datadir }}/[{{ elex_index_real }}]_metainfo.json"
     content: "{{ meta_data |to_nice_json }}"
   vars:
     meta_data:
-      aliases: "{{ result.json[elex_index_real].aliases }}"
-      mappings: "{{ result.json[elex_index_real].mappings }}"
+      aliases: "{{ meta_result.json[elex_index_real].aliases }}"
+      mappings: "{{ meta_result.json[elex_index_real].mappings }}"
 #any other settings than index?
       settings:
-        index: "{{ result.json[elex_index_real].settings.index|dict2items|rejectattr('key', 'in', _elex_filter_settings_keys)|list|items2dict }}"
+        index: "{{ meta_result.json[elex_index_real].settings.index|dict2items|rejectattr('key', 'in', _elex_filter_settings_keys)|list|items2dict }}"
   tags:
   - export
   - metainfo
 
-- name: "Compress saved meta data"
+- name: "[Export {{ elex_index_real }}] Compress saved meta data"
   archive: path="{{ elex_datadir }}/[{{ elex_index_real }}]_metainfo.json" remove=yes
   tags:
   - compress
   - metainfo
 
-- name: "Get document count for {{ elex_index_real }}"
+- name: "[Export {{ elex_index_real }}] Get document count"
   uri:
     url: "{{ elex_elasticsearch_url }}/{{ elex_index_real }}/_count"
     method: GET
@@ -71,15 +49,15 @@
   tags:
   - always
 
-- name: "Note document and page count for {{ elex_index_real }}"
+- name: "[Export {{ elex_index_real }}] Note document and page count"
   set_fact:
     elex_doc_count: "{{ result.json.count }}"
     elex_page_count: "{{ (result.json.count/elex_page_size)|round(0, 'ceil')|int }}"
   tags:
   - always
 
-- name: "Export documents from {{ elex_index_real }}"
-  include_tasks: do_export_index.yml
+- name: "[Export {{ elex_index_real }}] Export documents"
+  include_tasks: do_export_docs.yml
   loop: "{{ range(1, elex_page_count|int +1)|list }}"
   loop_control:
     loop_var: elex_page_num

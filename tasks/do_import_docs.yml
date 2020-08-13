@@ -1,6 +1,6 @@
 ---
 
-- name: "Restore {{ elex_file.path|basename }} to {{ elex_target }}"
+- name: "[Import {{ elex_index_real }}] Restore {{ elex_file.path|basename }} to {{ elex_target }}"
   uri:
     url: "{{ elex_elasticsearch_url }}/{{ elex_target }}/_bulk"
     method: POST

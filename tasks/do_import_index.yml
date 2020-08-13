@@ -1,43 +1,57 @@
 ---
 
-- name: Set variables
+- name: "[Import {{ elex_index_real }}] Determin variables"
   set_fact:
-    elex_target: "{{ elex_target|default(elex_index) }}"
-    elex_datadir: "{{ elex_workdir~'/['~elex_index~']/'~elex_export_date }}"
+    elex_target: "{{ elex_index_real }}"
+    elex_datadir: "{{ elex_workdir~'/['~elex_index_real~']/'~elex_export_date }}"
   tags:
   - always
 
-- name: "Check datadir: {{ elex_datadir }}"
+- name: "[Import {{ elex_index_real }}] Rename target"
+  set_fact:
+    elex_target: "{{ elex_index_real|regex_replace(re_op[1], re_op[2]) }}"
+  vars:
+    re_op: "{{ elex_rename.split('/')|list }}"
+  when: elex_rename is defined and elex_rename is string
+  failed_when: re_op|length!=4
+
+- debug:
+    msg:
+    - "{{ elex_rename }}"
+    - "{{ elex_target }}"
+    - "{{ elex_index_real }}"
+
+- name: "[Import {{ elex_index_real }}] Check datadir"
   stat: path="{{ elex_datadir }}"
   register: stat
   failed_when: not stat.stat.isdir
   tags:
   - always
 
-- name: "Get file list for {{ elex_index }}"
+- name: "[Import {{ elex_index_real }}] Get file list"
   find:
     path: "{{ elex_datadir }}"
-    patterns: "?{{ elex_index }}?_docs0*"
+    patterns: "?{{ elex_index_real }}?_docs0*"
   register: file_list
   failed_when: file_list.matched<1
   tags:
   - always
 
-- name: "Read meta info for {{ elex_index }}"
+- name: "[Import {{ elex_index_real }}] Read meta info"
   set_fact:
     index_meta_info:
       aliases: "{{ elex_restore_aliases|bool|ternary(raw_info.aliases, dict()) }}"
       mappings: "{{ raw_info.mappings }}"
       settings: "{{ raw_info.settings }}"
   vars:
-    raw_info: "{{ lookup('pipe', 'gunzip -c '~elex_datadir~'/['~elex_index~']_metainfo.json.gz')|from_json }}"
+    raw_info: "{{ lookup('pipe', 'gunzip -c '~elex_datadir~'/['~elex_index_real~']_metainfo.json.gz')|from_json }}"
   failed_when: index_meta_info.settings.index is not defined
   tags:
   - import
   - restore
   - meta
 
-- name: "Delete exiting index: {{ elex_target }}"
+- name: "[Import {{ elex_index_real }}] Delete exiting index: {{ elex_target }}"
   uri:
     url: "{{ elex_elasticsearch_url }}/{{ elex_target }}"
     method: DELETE
@@ -54,14 +68,14 @@
   - restore
   - meta
 
-- name: Debug uri results
+- name: "[Import {{ elex_index_real }}] Debug uri results"
   debug: var=result verbosity=1
   tags:
   - import
   - restore
   - meta
 
-- name: "Create and restore index meta info to {{ elex_target }}"
+- name: "[Import {{ elex_index_real }}] Create and restore index meta info to {{ elex_target }}"
   uri:
     url: "{{ elex_elasticsearch_url }}/{{ elex_target }}"
     method: PUT
@@ -79,15 +93,15 @@
   - restore
   - meta
 
-- name: Debug uri results
+- name: "[Import {{ elex_index_real }}] Debug uri results"
   debug: var=result verbosity=1
   tags:
   - import
   - restore
   - meta
 
-- name: "Restore documents to {{ elex_target }}"
-  include_tasks: do_import_index.yml
+- name: "[Import {{ elex_index_real }}] Restore documents to {{ elex_target }}"
+  include_tasks: do_import_docs.yml
   loop: "{{ file_list.files|sort(attribute='path') }}"
   loop_control:
     label: "{{ elex_file.path|basename }} -> {{ elex_target }}"

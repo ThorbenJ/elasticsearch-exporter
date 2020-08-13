@@ -1,0 +1,27 @@
+---
+
+- name: "[Import] Find matching exports for (fileglob): {{ elex_index }}"
+  find:
+    recurse: false
+    paths: "{{ elex_workdir }}"
+    patterns: "?{{ elex_index }}?" # used ? instead of '[' ']'
+    file_type: directory
+    use_regex: false
+  register: result
+
+- name: "[Import] Note index list"
+  set_fact:
+    elex_index_list: >
+      {{
+       result.files
+       |map(attribute='path')
+       |map('regex_replace', '^.*/\[', '')
+       |map('regex_replace', '\]$', '')
+       |list
+      }}
+
+- name: "[Import] Interata index list"
+  include_tasks: do_import_index.yml
+  loop: "{{ elex_index_list }}"
+  loop_control:
+    loop_var: "elex_index_real"

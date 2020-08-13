@@ -1,6 +1,6 @@
 ---
 
-- name: "Get first page (1/{{ elex_page_count }})"
+- name: "[Export {{ elex_index_real }}] Get first page (1/{{ elex_page_count }})"
   uri:
     url: "{{ elex_elasticsearch_url }}/{{ elex_index_real }}/_search?scroll=2m"
     method: POST
@@ -21,7 +21,7 @@
   - export
   - docs
 
-- name: Get scroll ID
+- name: "[Export {{ elex_index_real }}] Get scroll ID"
   set_fact:
     elex_scroll_id: "{{ first_result.json._scroll_id }}"
   when: elex_scroll_id is not defined
@@ -29,7 +29,7 @@
   - export
   - docs
 
-- name: "Get next page ({{ elex_page_num }}/{{ elex_page_count }})"
+- name: "[Export {{ elex_index_real }}] Get next page ({{ elex_page_num }}/{{ elex_page_count }})"
   uri:
     url: "{{ elex_elasticsearch_url }}/_search/scroll"
     method: POST
@@ -49,7 +49,7 @@
   - export
   - docs
 
-- name: "Save page ({{ elex_page_num }}/{{ elex_page_count }})"
+- name: "[Export {{ elex_index_real }}] Save page ({{ elex_page_num }}/{{ elex_page_count }})"
   template:
     dest: "{{ elex_datadir }}/[{{ elex_index_real }}]_docs{{ '%06x'|format(elex_page_num) }}.ndjson"
     src: "bulk_index.j2"
@@ -59,7 +59,7 @@
   - export
   - docs
 
-- name: "Compress page ({{ elex_page_num }}/{{ elex_page_count }})"
+- name: "[Export {{ elex_index_real }}] Compress page ({{ elex_page_num }}/{{ elex_page_count }})"
   archive:
     path: "{{ elex_datadir }}/[{{ elex_index_real }}]_docs{{ '%06x'|format(elex_page_num) }}.ndjson"
     remove: yes

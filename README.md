@@ -26,8 +26,9 @@ Role Variables
   - **Required** always
 
 &nbsp;
-- `elex_index`: The name of the index to be exported (or was exported, when importing)
+- `elex_index`: The index pattern of indices to be exported (or that was exported, when importing)
   - **Required** always
+  - Note: When importing this is used has a shell fileglob, to match export directories
 
 &nbsp;
 - `elex_workdir`: The base directory to store all exports under
@@ -38,12 +39,13 @@ Role Variables
   - *Defaults*: Today
 
 &nbsp;
-- `elex_target`: The index name to restore an import to
-  - *Default*: Same as `elex_index`
+- `elex_rename`: A RegEx to rename indices on retore. So that you can import to a different name
+  - *Default*: Not set
+  - *Example*: /^(.*)$/\\1-restored/
 
 &nbsp;
 - `elex_restore_aliases`: Restore index aliases when importing
-  - *Default*: elex_index == elex_target (i.e. False when importing to a different name)
+  - *Default*: elex_rename is not defined (i.e. True if not renaming)
 
 &nbsp;
 The following variables are derived from the ones above, but maybe overridden:
